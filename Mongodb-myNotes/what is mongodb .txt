@@ -1,0 +1,217 @@
+what is mongodb ?
+database server h jidher hum boht saare database create kar skte h .
+mongo means huge which means it can store a lot of data efficiently 
+
+why to use mongodb ?
+schemaless 
+highly scalable 
+less relations 
+data is stored together
+
+database => collection (table in mysql ) => documents (rows in mysql ) 
+documents : saved in json format
+
+what is BSON ?
+binary json => dhek documents jo h vo json format m h leekin behind the scene vo binary structure m hota h vo json ko binary m convert kar deta h taaki uska traversal fast ho jaaye
+
+mongodb install 
+
+2 ways to interact with mongodb : 
+
+1) command line shell 
+
+2)  mongodb compass => gui of mongodb 
+
+
+mongodb as a service chalu hota h appne laptop m to usko stop karna ke liye command line m => net stop mongoDB
+
+and if you want to start then => net start mongoDB
+
+query chalane ke liye chhiaye mongodb shell => install mongodb shell => uske exe m 
+uske exe m give connection string which is " mongodb://localhost:27017 "
+
+in mongodb shell :
+
+1 ) create db => use dbname_db 
+
+2 ) create collections and insert value into it => db.students.insertOne({name:"Ram" , age:12})
+
+
+crud operations in mongodb 
+
+c => create => insertOne(data , options ) , insertMany(data,options)
+r => read   => find(filter , options) , findOne(filter,options)
+u => update => updateOne(filter, data , options ) updateMany(filter , data , options ) , 	       replaceOne(filter , data , options ) 
+d => delete => deleteOne(filter , options ) , deleteMany(filter , options )
+
+find : 
+db.students.find().forEach((x) => {printjson(x) })
+db.students.find().limit(2)
+db.students.find().count()
+
+conditions => when we use $ in mongodb that means they are reserved keywords which are only understandable by the mongodb
+
+conditions in find => db.students.find({age:{$gt:12} })
+		      db.students.find({age:{$gte:12 , $lte:13}})
+
+insert:
+
+insertOne => db.students.insertOne({name:"om" , age:15})
+insertMany => db.students.insertMany([{name:"don" , age:13},{name:"OP" , age:12}])
+
+update:
+
+updateOne =>  db.students.updateOne({name:"om"} , {$set:{name:"haha"}} )
+updateMany =>  db.students.updateMany({} , {$set:{hobbies:['anime' , 'cooking']}})
+
+delete:
+
+deleteOne => db.students.delete({age:19})
+deleteMany => db.students.deleteMany({age:15})	
+
+
+3 ) to see to all documents => db.dbname.find()
+    to see one documents => db.students.findOne({name:"Ram"})
+
+4 ) to update one documents with nested documents => db.students.updateOne({name:"Ram"} , {$set:{idCards:{hasPanCarhasPanCard:false , hasAdhaarCard:true}}})
+
+5 ) when need to update whole document then =>  db.students.updateMany({} , {$set:{hobbies:["anime" , "cooking"]}})
+
+size limit of documents is => 16mb
+
+
+6 ) when you need to search by an array value : db.students.find({hobbies:'cooking'})
+7 ) when you need to search by nested values : db.students.find({'idCards.hasPanCard':false})	
+
+
+to delete a collections => db.collection-name.drop()
+to delete a database =>  db.dropDatabase()
+
+when you want to find particular column then : db.students.find({},{name:1}) => in this id will come bydefault then to overcome that 
+
+db.student.find({},{_id:0,UserName:true});
+
+
+datatypes in mongodb:
+text 
+boolean 
+number => integer , numberLong , numberDecimal 
+objectId 
+isoDate 
+Timestamp 
+Array 
+Emb Document 
+
+to check the type we can use : typeof db.database-name.findOne().name
+
+
+options :
+1 ordered 
+db.books.insertMany[{_id:"a" name:"a" age:1} ,{_id:"b"name:"b" age:2} ]
+agar a m error hoti to b insert nhi hota kyu => kyuki a m error h aur ordered by default true hota h isslyee isko overcome karne ke liye => write the query in this way => db.books.insertMany[{_id:"a" name:"a" age:1} ,{_id:"b"name:"b" age:2} ,{ordered:false}] 
+
+2 write concern 
+{ w(acknowledgment => tumne jo operation kiya h uska acknowledgment chhiaye ke nhi chhaiye uske liye hota h ye ) :<value> , j(genreal => tries to remember kounsa operation ho raaha h ):<boolean> , wtimeout(kitne time m updation ho jaan cahhiye ):<number> }
+
+so query iski hoti h => db.books.insertOne({name:"abc" , price:2 }) , {writeConcern:{w:0 , j:false(bydefault) , w:1200}) 
+
+how to use validations in mongodb ?
+
+if you want to create only the collection then => db.createCollection("collectionName")
+
+to put validations => db.createCollection("nonfiction,{
+			validator:{
+			$jsonSchema:{
+			required:["name" , "price"],
+			properties:{
+			name:{
+			bsonType:"string",
+			description:"must be a string"	
+			},
+			price:{
+			bsonType:"number" , 
+			description:"must be a number "
+				}
+			}
+		}
+},validationAction:'warn' /'error'})
+
+
+if you want to modify the json command then : 
+db.runCommand({
+	collMod (means ke kounsa collection appko modify karne ka h ) : "nonfiction" , 
+	validator:{
+			$jsonSchema:{
+			required:["name" , "price"],
+			properties:{
+			name:{
+			bsonType:"string",
+			description:"must be a string"	
+			},
+			price:{
+			bsonType:"number" , 
+			description:"must be a number "
+				}
+			}
+		}
+},validationAction:'warn' /'error'})
+})
+
+atomicity => yaa to 0 or 100  => it is achived at doucment level => per doucment ki baat hoti h agar suppose 10 doucments h 5 insert hue aur phir code phatt gyaa to kyaa hoga 5 rollback nhi hogye vo 5 inserted hi rahegye kyuki 5 to insert hue hi the naa isslye isslye atomicity is achived as document level  
+
+comparision operators 
+$eq = equal to 
+$ne = not equal to 
+$lt = less than 
+$gt = greater than 
+$lte = less than and equal to 
+$gte = greater than and equal to 
+$in = in 
+$nin = not in 
+
+db.students.find({age:{$eq:5}})
+db.students.find({age:{$ne:5}}) 
+db.students.find({age:{$gt:5}})
+db.students.find({age:{$in[5,11,12]}})
+
+logical operators
+$and = and 
+$or = or 
+$nor = nor 
+$not = not
+
+db.students.find({$or:[ {age:{$lte:10}} ,{age:{$gte:15} ]})
+db.students.find({$and:[{age:{$lte:10} ,{Hobbies:'walk'}]})
+
+element query operator : 
+$exists => whether that field is present or not 
+$type
+
+db.students.find({name:{$exists:true}})
+
+evalutaion query operator 
+$exper  = used for comparisons or arithmetic operations 
+$jsonSchema = validate documents
+$mod = perform modulo operations 
+$regex = select documents which matches a specific regular expression
+$text = perform text search
+$where
+
+arrays query 
+db.student.find({"experience.company" :"amazon"})
+
+sort the data 
+db.teachers.find().sort( {age:1(ascending)/-1(descending)})
+
+some other operators 
+$inc => increment => db.students.updateMany({} , {$inc:{age:2}})
+$min => minimum => db.students.updateMany({} , {$min:{age:23}})
+$max => maximum => db.students.updateMany({} , {$max:{age:50}})
+$mul => multiply => db.students.updateMany({} ,{$mul :{age:2}})
+$unset => unset
+$rename
+upsert => agar document mila to update and agar nhi mila to insert kar dena 
+
+
+
+
